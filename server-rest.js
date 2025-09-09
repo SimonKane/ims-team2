@@ -9,7 +9,7 @@ dotenv.config();
 app.use(express.json());
 
 // Routes
-app.use("/product", productRoutes);
+app.use("/products", productRoutes);
 
 const PORT = process.env.PORT;
 
