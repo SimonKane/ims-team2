@@ -1,6 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
-import contactRoutes from "./rest/routes/contactRoutes.js";
+import productRoutes from "./rest/routes/productRoutes.js";
 import { connectDB } from "./config/db.js";
 
 const app = express();
@@ -9,7 +9,7 @@ dotenv.config();
 app.use(express.json());
 
 // Routes
-app.use("/contacts", contactRoutes);
+app.use("/product", productRoutes);
 
 const PORT = process.env.PORT;
 
