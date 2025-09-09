@@ -1,15 +1,22 @@
 import express from "express";
 import dotenv from "dotenv";
-import { routes } from './routes.js';
+import contactRoutes from "./rest/routes/contactRoutes.js";
+import { connectDB } from "./config/db.js";
+
+const app = express();
 
 dotenv.config();
 app.use(express.json());
 
-// Routes 
-app.use('/api', routes);
+// Routes
+app.use("/contacts", contactRoutes);
 
-const PORT = 3000;
+const PORT = process.env.PORT;
 
-app.listen(PORT,() =>{
-  console.log(`Server is running on ${PORT}`);
-});
+connectDB()
+  .then(
+    app.listen(PORT, () => {
+      console.log(`Server is running on ${PORT}`);
+    })
+  )
+  .catch(console.error);
