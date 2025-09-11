@@ -1,5 +1,4 @@
 import express from "express";
-import mongoose from "mongoose";
 import { Product } from "../../models/Product.js";
 
 const app = express();
@@ -16,9 +15,6 @@ export async function getAllProducts(_req, res) {
 
 export async function getProductById(req, res) {
   const { id } = req.params;
-  if (!mongoose.isValidObjectId(id)) {
-    return res.status(400).json({ error: "Invalid ID" });
-  }
   try {
     const product = await Product.findById(id);
     res.status(200).json(product);
@@ -40,9 +36,6 @@ export async function updateProduct(req, res) {
   const { id } = req.params;
   const input = req.body;
 
-  if (!mongoose.isValidObjectId(id)) {
-    return res.status(400).json({ error: "Invalid ID" });
-  }
   try {
     const updatedProduct = await Product.findByIdAndUpdate(id, input, { new: true });
     res.status(200).json(updatedProduct);
@@ -53,9 +46,7 @@ export async function updateProduct(req, res) {
 
 export async function deleteProduct(req, res) {
   const { id } = req.params;
-  if (!mongoose.isValidObjectId(id)) {
-    return res.status(400).json({ error: "Invalid ID" });
-  }
+
   try {
     const deletedProduct = await Product.findByIdAndDelete(id);
     res.status(200).json(`Deleted ${deletedProduct.name}`);
@@ -82,16 +73,40 @@ export async function getAllManufacturers(_req, res) {
   }
 }
 
-
 export async function totalStockValue(_req, res) {
   try {
-    const products = await Product.find();
-    const totalValue = products.reduce((acc, product) => {
-      return acc + product.price * product.amountInStock;
-    }, 0);
-
-    return res.status(200).json({ totalValue });
+    const result = await Product.aggregate([
+      { $match: { amountInStock: { $gt: 0 } } },
+      {
+        $group: {
+          _id: null,
+          totalValue: { $sum: { $multiply: ["$price", "$amountInStock"] } },
+        },
+      },
+    ]);
+    const totalValue = result.length > 0 ? result[0].totalValue : 0;
+    res.status(200).json({ totalStockValue: totalValue });
   } catch (error) {
-    return res.status(500).json({ message: "Cannot calculate total stock value", error });
+    console.error("Error calculating total stock value:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
+export async function totalStockValueByManufacturer(_req, res) {
+  try {
+    const result = await Product.aggregate([
+      { $match: { amountInStock: { $gt: 0 } } },
+      {
+        $group: {
+          _id: "$manufacturer.name",
+          totalValue: { $sum: { $multiply: ["$price", "$amountInStock"] } },
+        },
+      },
+    ]);
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error calculating total stock value:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 }
