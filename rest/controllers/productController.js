@@ -40,3 +40,17 @@ export async function createProduct(req, res) {
     res.status(500).json(`Can not create product. Error: ${error}`);
   }
 }
+
+
+export async function totalStockValue(_req, res) {
+  try {
+    const products = await Product.find();
+    const totalValue = products.reduce((acc, product) => {
+      return acc + product.price * product.amountInStock;
+    }, 0);
+
+    return res.status(200).json({ totalValue });
+  } catch (error) {
+    return res.status(500).json({ message: "Cannot calculate total stock value", error });
+  }
+}
