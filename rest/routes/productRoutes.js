@@ -8,6 +8,7 @@ import {
   totalStockValue,
   totalStockValueByManufacturer,
   getLowStock,
+  getCriticalStock,
   getAllManufacturers,
 } from "../controllers/productController.js";
 
@@ -18,7 +19,7 @@ const router = express.Router();
 router.get("/products/low-stock", getLowStock);
 router.get("/products/total-stock-value-by-manufacturer", totalStockValueByManufacturer);
 router.get("/products/total-stock-value", totalStockValue);
-// router.get("/products/critical-stock")
+router.get("/products/critical-stock", getCriticalStock);
 
 router.get("/products/:id", checkId, getProductById);
 router.put("/products/:id", checkId, updateProduct);
