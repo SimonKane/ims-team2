@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Product } from "../../models/Product.js";
+import { Product } from "../../models/models.js";
 
 export async function checkId(req, res, next) {
   const { id } = req.params;

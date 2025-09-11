@@ -1,5 +1,5 @@
 import express from "express";
-import { Product } from "../../models/Product.js";
+import { Contact, Manufacturer, Product } from "../../models/models.js";
 
 const app = express();
 app.use(express.json());
@@ -24,11 +24,28 @@ export async function getProductById(req, res) {
 }
 
 export async function createProduct(req, res) {
-  try {
-    const product = await Product.create(req.body);
-    res.status(201).json(product);
-  } catch (error) {
-    res.status(500).json(`Could not create product. Error: ${error}`);
+  const { contactInput, manufacturerInput, productInput } = req.body;
+  const existingManufacturer = await Manufacturer.find({ name: manufacturerInput.name });
+
+  if (existingManufacturer.length > 0) {
+    try {
+      productInput.manufacturer = existingManufacturer._id;
+      const product = await Product.create(productInput);
+      return res.status(201).json(`${product}`);
+    } catch (error) {
+      res.status(500).json(`Could not create product. Error: ${error}`);
+    }
+  } else {
+    try {
+      const contact = await Contact.create(contactInput);
+      manufacturerInput.contact = contact._id;
+      const manufacturer = await Manufacturer.create(manufacturerInput);
+      productInput.manufacturer = manufacturer._id;
+      const product = await Product.create(productInput);
+      return res.status(201).json(`${product}`);
+    } catch (error) {
+      res.status(500).json(`Could not create product. Error: ${error}`);
+    }
   }
 }
 
@@ -61,6 +78,33 @@ export async function getLowStock(_req, res) {
     res.status(200).json(lowStock);
   } catch (error) {
     res.status(500).json(`Could not get products. Error: ${error}`);
+  }
+}
+
+export async function getCriticalStock(_req, res) {
+  try {
+    const products = await Product.find({
+      amountInStock: { $lte: 5 },
+    })
+      .populate({
+        path: "manufacturer",
+        select: { name: 1, _id: 0 },
+        populate: {
+          path: "contact",
+          model: "Contact",
+          select: "name email phone",
+        },
+      })
+      .select({
+        name: 1,
+        _id: 0,
+        amountInStock: 1,
+      });
+
+    if (!products) res.status(404).json({ message: " No products found" });
+    res.status(200).send(products);
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error", error: error });
   }
 }
 

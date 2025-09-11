@@ -1,4 +1,3 @@
-// model
 import mongoose from "mongoose";
 
 const contactSchema = new mongoose.Schema(
@@ -7,8 +6,10 @@ const contactSchema = new mongoose.Schema(
     email: { type: String, required: true, trim: true },
     phone: { type: String, required: true },
   },
-  { _id: false }
+  { timestamps: true, collection: "contacts" }
 );
+
+export const Contact = mongoose.model("Contact", contactSchema);
 
 const manufacturerSchema = new mongoose.Schema(
   {
@@ -17,10 +18,12 @@ const manufacturerSchema = new mongoose.Schema(
     website: { type: String, required: true, trim: true },
     description: { type: String, required: true, trim: true },
     address: { type: String, required: true, trim: true },
-    contact: contactSchema,
+    contact: { type: mongoose.Schema.Types.ObjectId, ref: "Contact" },
   },
-  { _id: false }
+  { timestamps: true, collection: "manufacturers" }
 );
+
+export const Manufacturer = mongoose.model("Manufacturer", manufacturerSchema);
 
 const productSchema = new mongoose.Schema(
   {
@@ -29,7 +32,7 @@ const productSchema = new mongoose.Schema(
     description: { type: String, required: true, trim: true },
     price: { type: Number, required: true, min: 0 },
     category: { type: String, required: true, trim: true },
-    manufacturer: { type: manufacturerSchema, required: true },
+    manufacturer: { type: mongoose.Schema.Types.ObjectId, ref: "Manufacturer" },
     amountInStock: { type: Number, required: true, min: 0 },
   },
   { timestamps: true, collection: "products" }
