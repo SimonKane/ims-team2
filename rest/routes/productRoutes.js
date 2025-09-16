@@ -1,4 +1,5 @@
 import express from "express";
+
 import {
   createProduct,
   getAllProducts,
@@ -17,7 +18,10 @@ import { checkId } from "../middleware/checkId.js";
 const router = express.Router();
 
 router.get("/products/low-stock", getLowStock);
-router.get("/products/total-stock-value-by-manufacturer", totalStockValueByManufacturer);
+router.get(
+  "/products/total-stock-value-by-manufacturer",
+  totalStockValueByManufacturer
+);
 router.get("/products/total-stock-value", totalStockValue);
 router.get("/products/critical-stock", getCriticalStock);
 
