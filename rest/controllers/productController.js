@@ -4,9 +4,10 @@ import { Contact, Manufacturer, Product } from "../../models/models.js";
 const app = express();
 app.use(express.json());
 
-export async function getAllProducts(_req, res) {
+export async function getAllProducts(req, res) {
+  const { limit } = req.query;
   try {
-    const products = await Product.find();
+    const products = await Product.find().limit(limit ? limit : 0);
     res.status(200).json(products);
   } catch (error) {
     res.status(500).json(`Could not get products. Error: ${error}`);
@@ -25,7 +26,9 @@ export async function getProductById(req, res) {
 
 export async function createProduct(req, res) {
   const { contactInput, manufacturerInput, productInput } = req.body;
-  const existingManufacturer = await Manufacturer.find({ name: manufacturerInput.name });
+  const existingManufacturer = await Manufacturer.find({
+    name: manufacturerInput.name,
+  });
 
   if (existingManufacturer.length > 0) {
     try {
@@ -54,7 +57,9 @@ export async function updateProduct(req, res) {
   const input = req.body;
 
   try {
-    const updatedProduct = await Product.findByIdAndUpdate(id, input, { new: true });
+    const updatedProduct = await Product.findByIdAndUpdate(id, input, {
+      new: true,
+    });
     res.status(200).json(updatedProduct);
   } catch (error) {
     res.status(500).json(`Could not update product. Error: ${error}`);
