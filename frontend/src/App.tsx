@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { Product } from "../../shared/types.ts";
+import type { Product } from "../shared/types.ts";
 import Card from "./components/Card.tsx";
 
 // interface Product {

@@ -1,22 +1,22 @@
 // typedefs
 export const typeDefs = /* GraphQL */ `
-
-type Contact {
+  type Contact {
     name: String!
     email: String!
     phone: String!
-}
+  }
 
-type Manufacturer { 
+  type Manufacturer {
+    id: ID!
     name: String!
     country: String!
     website: String!
     description: String!
     address: String!
     contact: Contact!
-}
+  }
 
-type Product {
+  type Product {
     id: ID!
     name: String!
     sku: String!
@@ -27,45 +27,56 @@ type Product {
     amountInStock: Int!
     createdAt: String!
     updatedAt: String!
-}
+  }
 
-type Query {  
-    products: [Product!]!
-    product(id: ID!): Product
+  type Query {
+    products(limit: Int = 10): [Product!]!
+    product(id: ID!): Product!
+    getLowStock(threshold: Int = 100): [Product!]!
+    getCriticalStock(threshold: Int = 10): CriticalStockPayload!
+    #    Fetch all unique manufacturers, contacts?
+  }
 
+  type CriticalStockPayload {
+    items: [Product!]!
+    message: String!
+  }
 
-   //Fetch all unique manufacturers, contacts? 
-}
+  input ProductInput {
+    name: String!
+    sku: String!
+    description: String!
+    price: Float!
+    category: String!
+    amountInStock: Int!
+    manufacturerId: ID!
+  }
 
-input ProductInput {
-  name: String!
-  sku: String!
-  description: String!
-  price: Float!
-  category: String!
-  amountInStock: Int!
-}
-
-input ContactInput {
+  input ContactInput {
     name: String!
     email: String!
     phone: String!
-}
+  }
 
-input manufacturerInput {
+  input ManufacturerInput {
     name: String!
     country: String!
     website: String!
     description: String!
     address: String!
     contact: ContactInput!
-}
+  }
+  input updateProductInput {
+    description: String
+    price: Float
+    category: String
+    amountInStock: Int
+    manufacturerId: ID
+  }
 
-type mutation {
-    addProduct(productInput: ProductInput!, manufacturerInput: manufacturerInput!): Product!
-    updateProduct(id: ID!, input: ProductInput!): Product!
-    deleteProduct(id: ID!): Boolean!
-}
-
-
+  type Mutation {
+    addProduct(productInput: ProductInput!): Product!
+    updateProduct(id: ID!, updateInput: updateProductInput!): Product!
+    deleteProduct(id: ID!): Product!
+  }
 `;
