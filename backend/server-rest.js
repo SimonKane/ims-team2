@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import productRoutes from "./rest/routes/productRoutes.js";
+import manufacturerRoutes from "./rest/routes/manufacturerRoutes.js";
 import { connectDB } from "./config/db.js";
 import cors from "cors";
 
@@ -13,6 +14,7 @@ app.use(express.json());
 
 // Routes
 app.use("/api", productRoutes);
+app.use("/api", manufacturerRoutes);
 
 connectDB()
   .then(

@@ -23,6 +23,7 @@ export async function getProductById(req, res) {
     res.status(500).json(`Could not get product. Error: ${error}`);
   }
 }
+//TODO Ändra så man endast gör en produkt och lägger in manufacturerId
 
 export async function createProduct(req, res) {
   const { contactInput, manufacturerInput, productInput } = req.body;
@@ -34,7 +35,7 @@ export async function createProduct(req, res) {
     try {
       productInput.manufacturer = existingManufacturer._id;
       const product = await Product.create(productInput);
-      return res.status(201).json(`${product}`);
+      return res.status(201).json(product);
     } catch (error) {
       res.status(500).json(`Could not create product. Error: ${error}`);
     }
@@ -45,7 +46,7 @@ export async function createProduct(req, res) {
       const manufacturer = await Manufacturer.create(manufacturerInput);
       productInput.manufacturer = manufacturer._id;
       const product = await Product.create(productInput);
-      return res.status(201).json(`${product}`);
+      return res.status(201).json(product);
     } catch (error) {
       res.status(500).json(`Could not create product. Error: ${error}`);
     }
@@ -113,15 +114,6 @@ export async function getCriticalStock(_req, res) {
   }
 }
 
-export async function getAllManufacturers(_req, res) {
-  try {
-    const manufacturers = await Product.distinct("manufacturer");
-    res.status(200).json(manufacturers);
-  } catch (error) {
-    res.status(500).json(`Can not get manufacturers. Error: ${error}`);
-  }
-}
-
 export async function totalStockValue(_req, res) {
   try {
     const result = await Product.aggregate([
@@ -143,16 +135,28 @@ export async function totalStockValue(_req, res) {
 
 export async function totalStockValueByManufacturer(_req, res) {
   try {
-    const result = await Product.aggregate([
+    const pipeline = [
       { $match: { amountInStock: { $gt: 0 } } },
+      {
+        $lookup: {
+          from: "manufacturers",
+          localField: "manufacturer",
+          foreignField: "_id",
+          as: "manufacturer",
+        },
+      },
+      { $unwind: "$manufacturer" },
       {
         $group: {
           _id: "$manufacturer.name",
-          totalValue: { $sum: { $multiply: ["$price", "$amountInStock"] } },
+          totalStockValue: {
+            $sum: { $multiply: ["$price", "$amountInStock"] },
+          },
         },
       },
-    ]);
-
+      { $project: { manufacturer: "$_id", totalStockValue: 1, _id: 0 } },
+    ];
+    const result = await Product.aggregate(pipeline);
     res.status(200).json(result);
   } catch (error) {
     console.error("Error calculating total stock value:", error);

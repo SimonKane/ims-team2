@@ -34,15 +34,23 @@ export const typeDefs = /* GraphQL */ `
     product(id: ID!): Product!
     getLowStock(threshold: Int = 100): [Product!]!
     getCriticalStock(threshold: Int = 10): CriticalStockPayload!
-    #    Fetch all unique manufacturers, contacts?
+    totalStockValue: Float!
     getAllManufacturers: [Manufacturer!]
+    totalStockValueByManufacturer: [totalStockValue!]!
   }
 
   type CriticalStockPayload {
     items: [Product!]!
     message: String!
   }
-
+  type LowStockPayload {
+    items: [Product!]!
+    message: String!
+  }
+  type totalStockValue {
+    totalStockValue: Float!
+    manufacturer: String
+  }
   input ProductInput {
     name: String!
     sku: String!

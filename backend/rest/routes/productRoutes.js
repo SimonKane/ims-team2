@@ -10,7 +10,6 @@ import {
   totalStockValueByManufacturer,
   getLowStock,
   getCriticalStock,
-  getAllManufacturers,
 } from "../controllers/productController.js";
 
 import { checkId } from "../middleware/checkId.js";
@@ -31,7 +30,5 @@ router.delete("/products/:id", checkId, deleteProduct);
 
 router.get("/products", getAllProducts);
 router.post("/products", createProduct);
-
-router.get("/manufacturers", getAllManufacturers);
 
 export default router;
