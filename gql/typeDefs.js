@@ -35,6 +35,7 @@ export const typeDefs = /* GraphQL */ `
     getLowStock(threshold: Int = 100): [Product!]!
     getCriticalStock(threshold: Int = 10): CriticalStockPayload!
     #    Fetch all unique manufacturers, contacts?
+    getAllManufacturers: [Manufacturer!]
   }
 
   type CriticalStockPayload {

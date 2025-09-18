@@ -1,8 +1,4 @@
-import { Product } from "../models/models.js";
-import {
-  getLowStock,
-  updateProduct,
-} from "../rest/controllers/productController.js";
+import { Manufacturer, Product, Contact } from "../models/models.js";
 
 // resolvers
 export const resolvers = {
@@ -27,13 +23,23 @@ export const resolvers = {
       return Product.find({ amountInStock: { $lte: threshold } });
     },
     getCriticalStock: async (_p, { threshold }) => {
-      const items = await Product.find({ amountInStock: { $lte: 2 } });
+      const items = await Product.find({ amountInStock: { $lte: threshold } });
       return { items, message: items.length ? "OK" : "NO CRITICAL STOCK" };
+    },
+    getAllManufacturers: async (_p) => {
+      //  const ids = await Product.distinct("manufacturerId", { manufacturerId: { $ne: null } });
+      //   if (!ids.length) return [];
+      //   return Manufacturer.find({ _id: { $in: ids } }).lean()
+
+      const allManufacturers = await Manufacturer.find().populate({
+        path: "contact",
+      });
+      return allManufacturers;
     },
   },
   Mutation: {
-    //Istället för att hårdkoda en nästlad manufacturer
     addProduct: async (_p, { productInput }) => {
+      //Istället för att hårdkoda en nästlad manufacturer
       const { manufacturerId, ...product } = productInput;
       const createdProduct = await Product.create({
         ...product,
@@ -59,3 +65,5 @@ export const resolvers = {
 };
 
 // om contact inte finns på ett objekt, vad händer när man gör en query och enbart vill ha contact som retur
+//TODO PAYLOADS
+//Man får en tom array men kan skicka meddelande med payload
