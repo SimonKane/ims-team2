@@ -1,40 +1,43 @@
 // typedefs
-export const typeDefs = /* GraphQL */ `
-
+export const typeDefs = `  #graphql
 type Contact {
-    name: String!
-    email: String!
-    phone: String!
+  id: ID!
+  name: String!
+  email: String!
+  phone: String!
+  createdAt: String!
+  updatedAt: String!
 }
 
 type Manufacturer { 
-    name: String!
-    country: String!
-    website: String!
-    description: String!
-    address: String!
-    contact: Contact!
+  id: ID!
+  name: String!
+  country: String!
+  website: String!
+  description: String!
+  address: String!
+  contact: Contact!        # <- obligatorisk
+  createdAt: String!
+  updatedAt: String!
 }
 
 type Product {
-    id: ID!
-    name: String!
-    sku: String!
-    description: String!
-    price: Float!
-    category: String!
-    manufacturer: Manufacturer!
-    amountInStock: Int!
-    createdAt: String!
-    updatedAt: String!
+  id: ID!
+  name: String!
+  sku: String!
+  description: String!
+  price: Float!
+  category: String!
+  manufacturer: Manufacturer!  # <- obligatorisk
+  amountInStock: Int!
+  createdAt: String!
+  updatedAt: String!
 }
 
 type Query {  
-    products: [Product!]!
-    product(id: ID!): Product
-
-
-   //Fetch all unique manufacturers, contacts? 
+  products: [Product!]!
+  product(id: ID!): Product
+  # ev. fler queries...
 }
 
 input ProductInput {
@@ -47,25 +50,25 @@ input ProductInput {
 }
 
 input ContactInput {
-    name: String!
-    email: String!
-    phone: String!
+  name: String!
+  email: String!
+  phone: String!
 }
 
-input manufacturerInput {
-    name: String!
-    country: String!
-    website: String!
-    description: String!
-    address: String!
-    contact: ContactInput!
+input ManufacturerInput {
+  name: String!
+  country: String!
+  website: String!
+  description: String!
+  address: String!
+  contact: ContactInput!
 }
 
-type mutation {
-    addProduct(productInput: ProductInput!, manufacturerInput: manufacturerInput!): Product!
+type Mutation {
+    addProduct(productInput: ProductInput!, manufacturerInput: ManufacturerInput!): Product!
     updateProduct(id: ID!, input: ProductInput!): Product!
     deleteProduct(id: ID!): Boolean!
-}
-
-
+  
+    addManufacturer(input: ManufacturerInput!): Manufacturer!
+  }
 `;
