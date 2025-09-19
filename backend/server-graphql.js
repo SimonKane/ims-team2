@@ -30,41 +30,41 @@ const validators = {
   addProduct: createProductValidator,
 };
 
-app.use("/graphql", async (req, res, next) => {
-  const query = req.body?.query || "";
+// app.use("/graphql", async (req, res, next) => {
+//   const query = req.body?.query || "";
 
-  // hitta matchande mutationsnamn i validators-objektet
-  for (const mutationName of Object.keys(validators)) {
-    if (query.includes(mutationName)) {
-      for (const step of validators[mutationName]) {
-        await step.run(req);
-      }
+//   // hitta matchande mutationsnamn i validators-objektet
+//   for (const mutationName of Object.keys(validators)) {
+//     if (query.includes(mutationName)) {
+//       for (const step of validators[mutationName]) {
+//         await step.run(req);
+//       }
 
-      const result = validationResult(req);
-      if (!result.isEmpty()) {
-        return res.status(400).json({
-          errors: result.array().map((e) => ({
-            message: e.msg,
-            field: e.param,
-            location: e.location,
-          })),
-        });
-      }
-      break;
-    }
-  }
+//       const result = validationResult(req);
+//       if (!result.isEmpty()) {
+//         return res.status(400).json({
+//           errors: result.array().map((e) => ({
+//             message: e.msg,
+//             field: e.param,
+//             location: e.location,
+//           })),
+//         });
+//       }
+//       break;
+//     }
+//   }
 
-  next();
-});
+//   next();
+// });
 
 /*------ */
 
-// app.use(
-//   "/graphql",
-//   expressMiddleware(apollo, {
-//     context: async () => ({}),
-//   })
-// );
+app.use(
+  "/graphql",
+  expressMiddleware(apollo, {
+    context: async () => ({}),
+  })
+);
 
 connectDB()
   .then(() => {

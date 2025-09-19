@@ -32,13 +32,13 @@ export const typeDefs = /* GraphQL */ `
   type Query {
     products(limit: Int = 10): [Product!]!
     product(id: ID!): Product!
-    getLowStock(threshold: Int = 100): [Product!]!
+    getLowStock(threshold: Int = 100): LowStockPayload!
     getCriticalStock(threshold: Int = 10): CriticalStockPayload!
     totalStockValue: Float!
     getAllManufacturers: [Manufacturer!]
     totalStockValueByManufacturer: [totalStockValue!]!
   }
-
+  # Payloads för att kunna tweaka return från resolver med ett meddelande
   type CriticalStockPayload {
     items: [Product!]!
     message: String!
@@ -47,10 +47,14 @@ export const typeDefs = /* GraphQL */ `
     items: [Product!]!
     message: String!
   }
+
+  #Type för att returnera snyggt från totala värdet av alla produkter
   type totalStockValue {
     totalStockValue: Float!
     manufacturer: String
   }
+
+  # Inputs
   input ProductInput {
     name: String!
     sku: String!

@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 
+//Tre separata collections som är kopplade via ID-referenser.
+
 const contactSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },

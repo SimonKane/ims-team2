@@ -28,8 +28,9 @@ app.use(express.json());
 //     res.status(500).json(`Internal server error: ${error}`);
 //   }
 // }
+/*---------------------------------------------------------------------------- */
 
-//För att hämta alla manufacturers och displaya när man lägger till en product så man kan välja
+//För att hämta alla manufacturers och displaya när man lägger till en product så man kan välja fårn lista
 
 export async function getAllManufacturers(_req, res) {
   try {

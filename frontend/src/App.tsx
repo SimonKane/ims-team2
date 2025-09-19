@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import type { Product } from "../shared/types.ts";
 import Card from "./components/Card.tsx";
+import NavBar from "./components/NavBar.tsx";
 
 // interface Product {
 //   _id: string;
@@ -17,23 +18,35 @@ import Card from "./components/Card.tsx";
 // }
 
 export default function App() {
-  const [test, setTest] = useState<Product[]>([]);
-
-  async function getProducts() {
-    await fetch("http://localhost:3000/api/products?limit=10")
-      .then((res) => res.json())
-      .then((data) => setTest(data));
-  }
+  const [products, setProducts] = useState<Product[]>([]);
+  const [query, setQuery] = useState<string>("");
+  const [limit, setLimit] = useState<string>("10");
 
   useEffect(() => {
-    getProducts();
-  }, []);
+    const fetchProducts = async () => {
+      try {
+        const params = new URLSearchParams({ limit: limit });
+        if (query) params.append("search", query);
+        const url = ` http://localhost:3000/api/products?${params.toString()}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        setProducts(data);
+      } catch (error) {
+        console.error("Error trying to fetch products");
+      }
+    };
+
+    fetchProducts();
+  }, [query]);
 
   return (
-    <div className="w-[80vw] h-[80vh] bg-white rounded-xl shadow-lg p-6 grid grid-cols-3 overflow-auto gap-4">
-      {test.map((product) => {
-        return <Card amount={product.amountInStock} title={product.name} />;
-      })}
-    </div>
+    <>
+      <NavBar onSearch={setQuery} />
+      <div className="w-[80vw] h-[80vh]  bg-white rounded-b-xl shadow-lg p-6 grid grid-cols-3 overflow-auto gap-4">
+        {products.map((product) => {
+          return <Card amount={product.amountInStock} title={product.name} />;
+        })}
+      </div>
+    </>
   );
 }
