@@ -6,12 +6,21 @@ const app = express();
 app.use(express.json());
 
 export async function getAllProducts(req, res) {
-  const { limit } = req.query;
+  const regExSearch = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
   try {
-    const products = await Product.find().limit(limit ? limit : 0);
-    if (products.length === 0) {
-      return res.status(200).json({ message: "No products yet", products });
+    const { limit, search } = req.query;
+
+    const filter = {};
+    if (search) {
+      filter.search = { name: { $regex: regExSearch(search), $options: "i" } };
     }
+
+    const products = await Product.find(filter.search)
+      .limit(limit)
+      .populate({ path: "manufacturer", select: "name" })
+      .lean();
+
     return res.status(200).json(products);
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error: error });

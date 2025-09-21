@@ -1,15 +1,64 @@
+import * as motion from "motion/react-client";
+
 interface CardProps {
   title: string;
-  amount: number;
+  amount?: number;
+  delay?: number;
+  manufacturer?: string;
+  choice?: string;
+  total?: number;
 }
 
-const Card = ({ title, amount }: CardProps) => {
+const Card = ({
+  title,
+  amount,
+  delay,
+  manufacturer,
+  choice,
+  total,
+}: CardProps) => {
   return (
-    <div className="bg-white gap-2 border-2 shadow-md rounded-lg p-6 max-w-sm mx-auto flex flex-col items-center">
-      {title && <h3 className="text-xl font-semibold mb-2">{title}</h3>}
-      <p>Amount in stock:</p>
-      <h2 className=" text-2xl ">{amount}</h2>
-    </div>
+    <motion.div
+      initial={{ opacity: 0, scale: 0 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{
+        duration: 0.4,
+        delay,
+        scale: {
+          type: "spring",
+          visualDuration: 0.4,
+          bounce: 0.1,
+        },
+      }}
+      className="w-full h-39 bg-white shadow-lg  rounded-lg p-6
+                    flex flex-col items-center justify-between"
+    >
+      <h3 className="text-xl font-semibold  text-center line-clamp-2">
+        {title}
+      </h3>
+      {choice === "products" ? (
+        <>
+          {" "}
+          <p className="text-sm text-gray-600">
+            By:{" "}
+            <span className="font font-semibold italic ">{manufacturer}</span>
+          </p>
+          <h2 className=" text-2xl font-semibold ">
+            {amount}
+            <span className="text-sm font-light text-gray-600"> in stock</span>
+          </h2>
+        </>
+      ) : (
+        <>
+          {" "}
+          <p className="text-sm text-gray-600">Total Stock Value:</p>
+          <h2 className=" text-2xl font-semibold ">
+            <span className="text-green-800 text-3xl"> $ </span>
+            {total?.toFixed(2)}
+          </h2>
+        </>
+      )}
+    </motion.div>
   );
 };
 
