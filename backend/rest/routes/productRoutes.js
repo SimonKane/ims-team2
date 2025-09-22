@@ -12,7 +12,7 @@ import {
   getCriticalStock,
 } from "../controllers/productController.js";
 
-import { checkId } from "../middleware/checkId.js";
+import { checkId } from "../../middleware/checkId.js";
 
 const router = express.Router();
 
