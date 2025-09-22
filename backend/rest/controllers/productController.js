@@ -5,12 +5,51 @@ const app = express();
 app.use(express.json());
 
 export async function getAllProducts(req, res) {
-  const { limit } = req.query;
+  const regExSearch = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
   try {
-    const products = await Product.find().limit(limit ? limit : 0);
-    res.status(200).json(products);
+    const { limit, search } = req.query;
+
+    const filter = {};
+    if (search) {
+      filter.search = { name: { $regex: regExSearch(search), $options: "i" } };
+    }
+
+    // const products = await Product.find(filter.search)
+    //   .limit(limit)
+    //   .populate({ path: "manufacturer", select: "name" })
+    //   .lean()
+    //   .sort({ name: 1 });
+
+    // return res.status(200).json(products);
+
+    const pipeline = [
+      {
+        $lookup: {
+          from: "manufacturers",
+          localField: "manufacturer",
+          foreignField: "_id",
+          as: "manufacturer",
+        },
+      },
+      { $unwind: "$manufacturer" },
+      {
+        $lookup: {
+          from: "contacts",
+          localField: "manufacturer.contact",
+          foreignField: "_id",
+          as: "contact",
+        },
+      },
+      { $set: { "manufacturer.contact": { $first: "$contact" } } },
+      { $unset: "contact" },
+      { $sort: { "manufacturer.name": 1 } },
+    ];
+    const docs = await Product.aggregate(pipeline);
+
+    return res.status(200).json(docs);
   } catch (error) {
-    res.status(500).json(`Could not get products. Error: ${error}`);
+    res.status(500).json({ message: "Internal server error", error: error });
   }
 }
 
