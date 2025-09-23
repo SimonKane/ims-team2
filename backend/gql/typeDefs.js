@@ -32,7 +32,7 @@ export const typeDefs = /* GraphQL */ `
   type Query {
     products(limit: Int = 10): [Product!]!
     product(id: ID!): Product!
-    getLowStock(threshold: Int = 100): [Product!]!
+    getLowStock(threshold: Int = 100): LowStockPayload!
     getCriticalStock(threshold: Int = 10): CriticalStockPayload!
     totalStockValue: Float!
     getAllManufacturers: [Manufacturer!]
@@ -43,14 +43,17 @@ export const typeDefs = /* GraphQL */ `
     items: [Product!]!
     message: String!
   }
+
   type LowStockPayload {
     items: [Product!]!
     message: String!
   }
+
   type totalStockValue {
     totalStockValue: Float!
     manufacturer: String
   }
+
   input ProductInput {
     name: String!
     sku: String!
@@ -75,12 +78,14 @@ export const typeDefs = /* GraphQL */ `
     address: String!
     contact: ContactInput!
   }
+
   input updateProductInput {
+    name: String
+    sku: String
     description: String
     price: Float
     category: String
     amountInStock: Int
-    manufacturerId: ID
   }
 
   type Mutation {
