@@ -8,20 +8,12 @@ export async function getAllProducts(req, res) {
   const regExSearch = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
   try {
-    const { limit, search } = req.query;
+    const { search } = req.query;
 
     const filter = {};
     if (search) {
       filter.search = { name: { $regex: regExSearch(search), $options: "i" } };
     }
-
-    // const products = await Product.find(filter.search)
-    //   .limit(limit)
-    //   .populate({ path: "manufacturer", select: "name" })
-    //   .lean()
-    //   .sort({ name: 1 });
-
-    // return res.status(200).json(products);
 
     const pipeline = [
       {
