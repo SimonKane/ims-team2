@@ -1,5 +1,5 @@
 import express from "express";
-import { Manufacturer } from "../../models/models.js";
+import { Manufacturer, Product } from "../../models/models.js";
 
 const app = express();
 app.use(express.json());
@@ -39,5 +39,22 @@ export async function getAllManufacturers(_req, res) {
     res.status(200).json(manufacturers);
   } catch (error) {
     res.status(500).json(`Can not get manufacturers. Error: ${error}`);
+  }
+}
+
+export async function getProductsByManufacturer(req, res) {
+  try {
+    const { id } = req.params;
+    const manufacturer = await Manufacturer.findById(id).populate({
+      path: "contact",
+    });
+    if (!manufacturer) {
+      return res.status(404).json("Manufacturer not found");
+    }
+    const products = await Product.find({ manufacturer: manufacturer.id });
+
+    res.status(200).json({ manufacturer, products });
+  } catch (error) {
+    res.status(500).json(`Can not get products. Error: ${error}`);
   }
 }
