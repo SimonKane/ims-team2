@@ -7,9 +7,9 @@ import { ApolloServer } from "@apollo/server";
 import { typeDefs } from "./gql/typeDefs.js";
 import { resolvers } from "./gql/resolvers.js";
 import { expressMiddleware } from "@as-integrations/express5";
-import { createProductValidator } from "./rest/middleware/validators/productValidator.js";
-import { createManufacturerValidator } from "./rest/middleware/validators/manufacturorValidator.js";
-import { createContactValidator } from "./rest/middleware/validators/contactValidator.js";
+import { createProductValidator } from "./middleware/validators/productValidator.js";
+// import { createManufacturerValidator } from "./middleware/validators/manufacturorValidator.js";
+// import { createContactValidator } from "./middleware/validators/contactValidator.js";
 
 dotenv.config();
 
@@ -25,8 +25,8 @@ await apollo.start();
 /*-- Validators---*/
 
 const validators = {
-  createContact: createContactValidator,
-  addManufacturer: createManufacturerValidator,
+  // createContact: createContactValidator,
+  // addManufacturer: createManufacturerValidator,
   addProduct: createProductValidator,
 };
 
@@ -57,14 +57,12 @@ app.use("/graphql", async (req, res, next) => {
   next();
 });
 
-/*------ */
-
-// app.use(
-//   "/graphql",
-//   expressMiddleware(apollo, {
-//     context: async () => ({}),
-//   })
-// );
+app.use(
+  "/graphql",
+  expressMiddleware(apollo, {
+    context: async () => ({}),
+  })
+);
 
 connectDB()
   .then(() => {

@@ -19,14 +19,17 @@ export const resolvers = {
         populate: { path: "contact" },
       });
     },
+
     getLowStock: async (_p, { threshold }) => {
-      const items = Product.find({ amountInStock: { $lte: threshold } });
+      const items = await Product.find({ amountInStock: { $lte: threshold } });
       return { items, message: items.length ? "OK" : "NO LOW STOCK" };
     },
+
     getCriticalStock: async (_p, { threshold }) => {
       const items = await Product.find({ amountInStock: { $lte: threshold } });
       return { items, message: items.length ? "OK" : "NO CRITICAL STOCK" };
     },
+
     totalStockValue: async () => {
       const result = await Product.aggregate([
         { $match: { amountInStock: { $gt: 0 } } },
@@ -41,12 +44,14 @@ export const resolvers = {
 
       return totalValue;
     },
+
     getAllManufacturers: async (_p) => {
       const allManufacturers = await Manufacturer.find().populate({
         path: "contact",
       });
       return allManufacturers;
     },
+
     totalStockValueByManufacturer: async (_p) => {
       const pipeline = [
         { $match: { amountInStock: { $gt: 0 } } },
@@ -85,6 +90,7 @@ export const resolvers = {
       });
       return createdProduct;
     },
+
     updateProduct: async (_p, { id, updateInput }) => {
       const updatedProduct = await Product.findByIdAndUpdate(id, updateInput, {
         new: true,
@@ -92,12 +98,10 @@ export const resolvers = {
       });
       return updatedProduct;
     },
+
     deleteProduct: async (_p, { id }) => {
       const deletedProduct = await Product.findByIdAndDelete(id);
-      return {
-        deleted_product: deletedProduct,
-        message: "Deleted sucessfully",
-      };
+      return deletedProduct;
     },
   },
 };
