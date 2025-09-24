@@ -77,14 +77,20 @@ export default function App() {
         </select>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filtered.map((product) => (
           <Card
             key={product._id}
-            title={product.name}
-            amount={product.amountInStock}
+            _id={product.name}
+            amountInStock={product.amountInStock}
             price={product.price}
             category={product.category}
+            createdAt={product.createdAt}
+            // description={product.description} Activera när man fixat manufacturer.
+            name={product.name}
+            sku={product.sku}
+            updatedAt={product.updatedAt}
+            __v={product.__v}
           />
         ))}
       </div>
