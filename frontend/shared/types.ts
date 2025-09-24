@@ -7,15 +7,18 @@ export type ManuTotal = {
   manufacturer: string;
   totalStockValue: number;
 };
-
 export type Manufacturer = {
   _id: string;
   name: string;
-  email: string;
+
   country: string;
   description: string;
   website: string;
+  address: string;
   contact: Contact;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
 };
 
 export type Product = {

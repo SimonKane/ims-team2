@@ -32,9 +32,29 @@ app.use(express.json());
 
 //För att hämta alla manufacturers och displaya när man lägger till en product så man kan välja fårn lista
 
-export async function getAllManufacturers(_req, res) {
+export async function getAllManufacturers(req, res) {
+  const regExSearch = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  const { search } = req.query;
+
+  const filter = {};
+  if (search) {
+    filter.search = { name: { $regex: regExSearch(search), $options: "i" } };
+  }
   try {
-    const manufacturers = await Manufacturer.find().populate({
+    const manufacturers = await Manufacturer.find(filter.search).populate({
+      path: "contact",
+    });
+    res.status(200).json(manufacturers);
+  } catch (error) {
+    res.status(500).json(`Can not get manufacturers. Error: ${error}`);
+  }
+}
+
+export async function getManufacturerById(req, res) {
+  const { id } = req.params;
+  try {
+    const manufacturers = await Manufacturer.findById(id).populate({
       path: "contact",
     });
     res.status(200).json(manufacturers);
