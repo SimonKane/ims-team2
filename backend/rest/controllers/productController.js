@@ -16,12 +16,31 @@ export async function getAllProducts(req, res) {
       filter.search = { name: { $regex: regExSearch(search), $options: "i" } };
     }
 
-    const products = await Product.find(filter.search)
-      .limit(limit)
-      .populate({ path: "manufacturer", select: "name" })
-      .lean();
+    const pipeline = [
+      {
+        $lookup: {
+          from: "manufacturers",
+          localField: "manufacturer",
+          foreignField: "_id",
+          as: "manufacturer",
+        },
+      },
+      { $unwind: "$manufacturer" },
+      {
+        $lookup: {
+          from: "contacts",
+          localField: "manufacturer.contact",
+          foreignField: "_id",
+          as: "contact",
+        },
+      },
+      { $set: { "manufacturer.contact": { $first: "$contact" } } },
+      { $unset: "contact" },
+      { $sort: { "manufacturer.name": 1 } },
+    ];
+    const docs = await Product.aggregate(pipeline);
 
-    return res.status(200).json(products);
+    return res.status(200).json(docs);
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error: error });
   }
@@ -29,8 +48,12 @@ export async function getAllProducts(req, res) {
 
 export async function getProductById(req, res) {
   const { id } = req.params;
-  //<------id validation med middleware----->
+
   try {
+    if (!mongoose.isValidObjectId(manufacturerId)) {
+      return res.status(400).json({ error: "Invalid product ID" });
+    }
+
     const product = await Product.findById(id);
     if (!product) {
       return res.status(404).json({ error: "Product not found" });

@@ -1,23 +1,26 @@
 import { useState, useEffect } from "react";
 import { type Manufacturer } from "../../shared/types";
-// import { BsEmojiSunglasses } from "react-icons/bs";
 import CircularProgress from "@mui/material/CircularProgress";
 
 interface ManufacturerCardProps {
   id: string;
-
   closeModal: () => void;
+  getName: (name: string) => void;
 }
 
-const ManufacturerCard = ({ id, closeModal }: ManufacturerCardProps) => {
+const ManufacturerCard = ({
+  id,
+  closeModal,
+  getName,
+}: ManufacturerCardProps) => {
   const [manufacturer, setManufacturer] = useState<Manufacturer | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-
   const getManufacturerInfo = async () => {
     try {
       const res = await fetch(`http://localhost:3000/api/manufacturers/${id}`);
       const data = await res.json();
       setManufacturer(data);
+      getName(data.name);
       setIsLoading(false);
     } catch (error) {
       console.error(error);
@@ -99,7 +102,9 @@ const ManufacturerCard = ({ id, closeModal }: ManufacturerCardProps) => {
 
               <div className="flex gap-6 ">
                 <button
-                  onClick={() => closeModal()}
+                  onClick={() => {
+                    closeModal();
+                  }}
                   className="px-6 py-3 rounded-xl bg-gray-200/90 text-[#504136] font-semibold shadow-md hover:bg-gray-300 transition cursor-pointer"
                 >
                   Display Products

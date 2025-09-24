@@ -9,124 +9,196 @@ import { useState } from "react";
 import type { Product } from "../../shared/types.ts";
 import type { Manufacturer } from "../../shared/types.ts";
 import AutoCompleteSearchBox from "./AutoComplete.tsx";
+import AddProduct from "./AddProduct.tsx";
 
-//TODO make navbar with filter, search and low stock notice
+//TODO low notice alert
 
 type NavBarProps = {
   onSearch: (query: string) => void;
-  query: string;
+
   products: Product[] | Manufacturer[];
   choice?: string;
+  categories?: string[];
+  category?: string;
+
+  onCategoryChange?: (val: string) => void;
+  onSortChange?: (val: string) => void;
 };
 
-const NavBar = ({ onSearch, products, query, choice }: NavBarProps) => {
-  const [sortOpen, setSortOpen] = useState<boolean>(false);
+const NavBar = ({
+  onSearch,
+  products,
+  choice,
+
+  categories = [],
+  category = "",
+  onCategoryChange,
+  onSortChange,
+}: NavBarProps) => {
+  const [sortOpen, setSortOpen] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
-  const [addModal, setAddModal] = useState<boolean>(false);
-  const [product, setProduct] = useState<Product>();
+  const [addModal, setAddModal] = useState(false);
 
   return (
-    <div className="w-[80vw] h-[10vh] bg-[#504136] rounded-t-xl mb-3 shadow-lg flex items-center justify-end px-6">
-      <div className=" relative item-container flex items-center gap-2 mr-4">
-        <button
-          onClick={() => {
-            setAddModal(!addModal);
-          }}
-          title={"Add Product"}
-          type="button"
-          aria-label="Filter"
-          className="relative p-2 rounded-md bg-white/20 hover:bg-white/30 transition text-white cursor-pointer"
-        >
-          <BsPlusSquare size={18} />
-        </button>
+    <>
+      {addModal && <AddProduct onClose={() => setAddModal(false)} />}
 
-        <button
-          title={"Filter"}
-          type="button"
-          aria-label="Filter"
-          className="p-2 rounded-md bg-white/20 hover:bg-white/30 transition text-white cursor-pointer"
-        >
-          <BsFilter size={18} />
-        </button>
-
-        <button
-          onClick={() => {
-            setSortOpen(!sortOpen);
-          }}
-          title={"Sort"}
-          type="button"
-          aria-label="Notifications"
-          className="relative p-2 rounded-md bg-white/20 hover:bg-white/30 transition text-white cursor-pointer"
-        >
-          <BsSortUp size={18} />
-        </button>
-        {/* {sortOpen && (
-          <div className="absolute left-19 top-8 mt-2 bg-white text-black text-sm rounded shadow p-1 z-10">
-            <p className="block w-full text-left px-3 py-1">Sort by: </p>
-            <button
-              className="block w-full text-left px-3 py-1 hover:bg-gray-100"
-              onClick={() => {
-                onSortChange("name", "asc");
-                setSortOpen(false);
-              }}
-            >
-              Name
-            </button>
-            <button
-              className="block w-full text-left px-3 py-1 hover:bg-gray-100"
-              onClick={() => {
-                onSortChange("manufacturer", "asc");
-                setSortOpen(false);
-              }}
-            >
-              Manufacturer
-            </button>
-            <button
-              className="block w-full text-left px-3 py-1 hover:bg-gray-100"
-              onClick={() => {
-                onSortChange("amountInStock", "asc");
-                setSortOpen(false);
-              }}
-            >
-              Amount in stock
-            </button>
-          </div>
-        )} */}
-
-        <button
-          title={"Critical Low Stock"}
-          type="button"
-          aria-label="Alerts"
-          className="relative p-2 rounded-md bg-white/20 hover:bg-white/30 transition text-white cursor-pointer"
-        >
-          <BsExclamationTriangle size={18} />
-          <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-red-500" />
-        </button>
-      </div>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          onSearch(searchText);
+      <div
+        className="w-[80vw] h-[10vh] bg-[#504136] rounded-t-xl mb-3 shadow-lg flex items-center justify-end px-6"
+        onClick={() => {
+          setFilterOpen(false);
+          setSortOpen(false);
         }}
-        className={`flex items-center ${
-          !choice ? "bg-gray-300" : "bg-white"
-        } rounded-md px-3 py-1 shadow-sm w-72`}
       >
-        <AutoCompleteSearchBox
-          choice={choice}
-          value={searchText}
-          products={products}
-          onSearch={setSearchText}
-        />
+        <div
+          className="relative item-container flex items-center gap-2 mr-4"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={() => {
+              setAddModal(true);
+              setSortOpen(false);
+              setFilterOpen(false);
+            }}
+            title="Add Product"
+            type="button"
+            aria-label="Add Product"
+            className="relative p-2 rounded-md bg-white/20 hover:bg-white/30 transition text-white cursor-pointer"
+          >
+            <BsPlusSquare size={18} />
+          </button>
 
-        <button onClick={() => onSearch(query)} type="submit">
-          <BsSearch className="text-gray-500 ml-2 cursor-pointer" size={20} />
-        </button>
-      </form>
-    </div>
+          <div className="relative">
+            <button
+              title="Filter"
+              type="button"
+              aria-label="Filter"
+              onClick={() => {
+                setFilterOpen((v) => !v);
+                setSortOpen(false);
+              }}
+              className="p-2 rounded-md bg-white/20 hover:bg-white/30 transition text-white cursor-pointer"
+            >
+              <BsFilter size={18} />
+            </button>
+
+            {filterOpen && choice === "products" && (
+              <div className="absolute right-0 mt-2 w-56 bg-white text-black text-sm rounded shadow p-2 z-20">
+                <label className="block text-xs font-semibold mb-1">
+                  Category
+                </label>
+                <select
+                  value={category}
+                  onChange={(e) => onCategoryChange?.(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                >
+                  <option value="">All Categories</option>
+                  {categories.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+
+          <div className="relative">
+            <button
+              onClick={() => {
+                setSortOpen((v) => !v);
+                setFilterOpen(false);
+              }}
+              title="Sort"
+              type="button"
+              aria-label="Sort"
+              className="relative p-2 rounded-md bg-white/20 hover:bg-white/30 transition text-white cursor-pointer"
+            >
+              <BsSortUp size={18} />
+            </button>
+
+            {sortOpen && choice === "products" && (
+              <div className="absolute right-0 mt-2 w-56 bg-white text-black text-sm rounded shadow p-2 z-20">
+                <p className="block w-full text-left px-3 py-1 font-semibold">
+                  Sort by
+                </p>
+                <button
+                  className="block w-full text-left px-3 py-1 hover:bg-gray-100"
+                  onClick={() => {
+                    onSortChange?.("price-low");
+                    setSortOpen(false);
+                  }}
+                >
+                  Price: Low → High
+                </button>
+                <button
+                  className="block w-full text-left px-3 py-1 hover:bg-gray-100"
+                  onClick={() => {
+                    onSortChange?.("price-high");
+                    setSortOpen(false);
+                  }}
+                >
+                  Price: High → Low
+                </button>
+                <button
+                  className="block w-full text-left px-3 py-1 hover:bg-gray-100"
+                  onClick={() => {
+                    onSortChange?.("stock-low");
+                    setSortOpen(false);
+                  }}
+                >
+                  Stock: Low → High
+                </button>
+                <button
+                  className="block w-full text-left px-3 py-1 hover:bg-gray-100"
+                  onClick={() => {
+                    onSortChange?.("stock-high");
+                    setSortOpen(false);
+                  }}
+                >
+                  Stock: High → Low
+                </button>
+              </div>
+            )}
+          </div>
+          <button
+            title="Critical Low Stock"
+            type="button"
+            aria-label="Alerts"
+            className="relative p-2 rounded-md bg-white/20 hover:bg-white/30 transition text-white cursor-pointer"
+            onClick={() => {
+              console.log("Show low stock products");
+            }}
+          >
+            <BsExclamationTriangle size={18} />
+            <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-red-500" />
+          </button>
+        </div>
+
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            onSearch(searchText);
+          }}
+          className={`flex items-center ${
+            !choice ? "bg-gray-300" : "bg-white"
+          } rounded-md px-3 py-1 shadow-sm w-72`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <AutoCompleteSearchBox
+            choice={choice}
+            value={searchText}
+            products={products}
+            onSearch={setSearchText}
+          />
+          <button type="submit">
+            <BsSearch className="text-gray-500 ml-2 cursor-pointer" size={20} />
+          </button>
+        </form>
+      </div>
+    </>
   );
 };
-
 export default NavBar;
-
 //TODO check all items from critical products and show on notice click
