@@ -64,6 +64,7 @@ const AddProduct = ({ onClose }: AddProductProps) => {
         onSubmit={async (e) => {
           e.preventDefault();
           const payload = { productInput, manufacturerId };
+          console.log(payload)
 
           await fetch("http://localhost:3000/api/products", {
             method: "POST",
