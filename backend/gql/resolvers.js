@@ -81,15 +81,31 @@ export const resolvers = {
       return result;
     },
   },
+  
   Mutation: {
-    addProduct: async (_p, { productInput }) => {
-      const { manufacturerId, ...product } = productInput;
-      const createdProduct = await Product.create({
-        ...product,
-        manufacturer: manufacturerId,
-      });
-      return createdProduct;
-    },
+      addProduct: async (_p, { productInput }) => {
+        try {
+          const { manufacturerId, ...product } = productInput;
+    
+          
+          const manufacturer = await Manufacturer.findById(manufacturerId);
+          if (!manufacturer) {
+            throw new Error("Manufacturer not found");
+          }
+          
+          const createdProduct = await Product.create({
+            ...product,
+            manufacturer: manufacturerId,
+          });
+    
+          return createdProduct;
+        } catch (err) {
+          if (err.code === 11000) {
+            throw new Error("SKU already exists, please use a unique one");
+          }
+          throw err;
+        }
+      },
 
     updateProduct: async (_p, { id, updateInput }) => {
       const updatedProduct = await Product.findByIdAndUpdate(id, updateInput, {
