@@ -3,6 +3,7 @@ import {
   BsFilter,
   BsExclamationTriangle,
   BsSortUp,
+  BsPlusSquare,
 } from "react-icons/bs";
 import { useState } from "react";
 import type { Product } from "../../shared/types.ts";
@@ -21,10 +22,24 @@ type NavBarProps = {
 const NavBar = ({ onSearch, products, query, choice }: NavBarProps) => {
   const [sortOpen, setSortOpen] = useState<boolean>(false);
   const [searchText, setSearchText] = useState("");
+  const [addModal, setAddModal] = useState<boolean>(false);
+  const [product, setProduct] = useState<Product>();
 
   return (
     <div className="w-[80vw] h-[10vh] bg-[#504136] rounded-t-xl mb-3 shadow-lg flex items-center justify-end px-6">
       <div className=" relative item-container flex items-center gap-2 mr-4">
+        <button
+          onClick={() => {
+            setAddModal(!addModal);
+          }}
+          title={"Add Product"}
+          type="button"
+          aria-label="Filter"
+          className="relative p-2 rounded-md bg-white/20 hover:bg-white/30 transition text-white cursor-pointer"
+        >
+          <BsPlusSquare size={18} />
+        </button>
+
         <button
           title={"Filter"}
           type="button"
