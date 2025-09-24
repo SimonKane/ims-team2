@@ -8,6 +8,8 @@ import { typeDefs } from "./gql/typeDefs.js";
 import { resolvers } from "./gql/resolvers.js";
 import { expressMiddleware } from "@as-integrations/express5";
 import { createProductValidator } from "./middleware/validators/productValidator.js";
+
+//---- Validering för ny Manufacturer och Contact, används inte men kan implementeras om man önskar -------//
 // import { createManufacturerValidator } from "./middleware/validators/manufacturorValidator.js";
 // import { createContactValidator } from "./middleware/validators/contactValidator.js";
 
@@ -18,15 +20,10 @@ const PORT = process.env.port || 3000;
 
 app.use(express.json());
 
-//Starta apollo server
 const apollo = new ApolloServer({ typeDefs, resolvers });
 await apollo.start();
 
-/*-- Validators---*/
-
 const validators = {
-  // createContact: createContactValidator,
-  // addManufacturer: createManufacturerValidator,
   addProduct: createProductValidator,
 };
 

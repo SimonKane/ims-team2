@@ -3,8 +3,6 @@ import { Manufacturer, Product } from "../models/models.js";
 export const resolvers = {
   Query: {
     products: async (_p, { limit }) => {
-      //TODO Lägg till validering för att limit ej ska vara null
-
       return Product.find()
         .limit(limit)
         .populate({
@@ -81,31 +79,30 @@ export const resolvers = {
       return result;
     },
   },
-  
+
   Mutation: {
-      addProduct: async (_p, { productInput }) => {
-        try {
-          const { manufacturerId, ...product } = productInput;
-    
-          
-          const manufacturer = await Manufacturer.findById(manufacturerId);
-          if (!manufacturer) {
-            throw new Error("Manufacturer not found");
-          }
-          
-          const createdProduct = await Product.create({
-            ...product,
-            manufacturer: manufacturerId,
-          });
-    
-          return createdProduct;
-        } catch (err) {
-          if (err.code === 11000) {
-            throw new Error("SKU already exists, please use a unique one");
-          }
-          throw err;
+    addProduct: async (_p, { productInput }) => {
+      try {
+        const { manufacturerId, ...product } = productInput;
+
+        const manufacturer = await Manufacturer.findById(manufacturerId);
+        if (!manufacturer) {
+          throw new Error("Manufacturer not found");
         }
-      },
+
+        const createdProduct = await Product.create({
+          ...product,
+          manufacturer: manufacturerId,
+        });
+
+        return createdProduct;
+      } catch (err) {
+        if (err.code === 11000) {
+          throw new Error("SKU already exists, please use a unique one");
+        }
+        throw err;
+      }
+    },
 
     updateProduct: async (_p, { id, updateInput }) => {
       const updatedProduct = await Product.findByIdAndUpdate(id, updateInput, {
@@ -121,54 +118,3 @@ export const resolvers = {
     },
   },
 };
-
-//TODO Implementera nedan
-
-// import { GraphQLError } from "graphql";
-// import { Contact, Manufacturer } from "../models/models.js";
-
-// export const resolvers = {
-//   Mutation: {
-//     addManufacturer: async (_p, { input }) => {
-//       try {
-//         // 1. skapa kontakt först
-//         const contact = await Contact.create(input.contact);
-
-//         // 2. skapa manufacturer kopplad till kontakten
-//         const manufacturer = await Manufacturer.create({
-//           ...input,
-//           contact: contact._id,
-//         });
-
-//         return manufacturer;
-//       } catch (err) {
-//         if (err.name === "ValidationError") {
-//           // Mongoose valideringsfel → gör om till GraphQLError
-//           throw new GraphQLError("Invalid input", {
-//             extensions: {
-//               code: "BAD_USER_INPUT",
-//               errors: Object.keys(err.errors).map((field) => ({
-//                 field,
-//                 message: err.errors[field].message,
-//               })),
-//             },
-//           });
-//         }
-//         throw err; // andra fel bubbla upp
-//       }
-//     },
-//   },
-
-//   Manufacturer: {
-//     id: (doc) => String(doc._id),
-//     contact: (doc) => Contact.findById(doc.contact).exec(),
-//     createdAt: (doc) => doc.createdAt.toISOString(),
-//     updatedAt: (doc) => doc.updatedAt.toISOString(),
-//   },
-
-//   Contact: {
-//     id: (doc) => String(doc._id),
-//     createdAt: (doc) => doc.createdAt.toISOString(),
-//     updatedAt: (doc) => doc.updatedAt.toISOString(),
-//   },
-// };

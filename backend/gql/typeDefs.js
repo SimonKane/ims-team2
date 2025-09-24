@@ -1,4 +1,3 @@
-// typedefs
 export const typeDefs = /* GraphQL */ `
   type Contact {
     name: String!

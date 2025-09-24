@@ -1,7 +1,6 @@
 import { checkSchema } from "express-validator";
 
 export const createProductValidator = checkSchema({
-  // Product fields
   "variables.productInput.name": {
     in: ["body"],
     isString: { errorMessage: "name måste vara text" },
@@ -51,6 +50,8 @@ export const createProductValidator = checkSchema({
     },
     toInt: true,
   },
+
+  //---- Om man vill kunna skapa Manufacturer och Contact samtidigt som man skapar en ny Product -------//
 
   // Manufacturer input (nested)
   // "variables.input.manufacturer.name": {
