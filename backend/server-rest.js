@@ -12,7 +12,6 @@ dotenv.config();
 app.use(cors());
 app.use(express.json());
 
-// Routes
 app.use("/api", productRoutes);
 app.use("/api", manufacturerRoutes);
 

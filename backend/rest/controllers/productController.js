@@ -54,6 +54,7 @@ export async function getProductById(req, res) {
     res.status(500).json(`Could not get product. Error: ${error}`);
   }
 }
+
 //TODO Ändra så man endast gör en produkt och lägger in manufacturerId
 
 export async function createProduct(req, res) {
