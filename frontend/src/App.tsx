@@ -91,7 +91,7 @@ export default function App() {
           const params = new URLSearchParams({ limit });
           if (query) params.append("search", query);
           const url = manufacturerID
-            ? `http://localhost:3000/api/manufacturers/products/${manufacturerID}`
+            ? `http://localhost:3000/api/manufacturers/products/${manufacturerID}?${params.toString()}`
             : `http://localhost:3000/api/products?${params.toString()}`;
           const res = await fetch(url);
           const data = await res.json();
@@ -119,7 +119,7 @@ export default function App() {
       }
     };
     fetchItems();
-  }, [query, limit, choice]);
+  }, [query, limit, choice, manufacturerID]);
 
   const handleModalClick = (e: any) => {
     if (e.target.id === "modal") setShowModal(false);
@@ -148,9 +148,11 @@ export default function App() {
       <NavBar
         choice={choice}
         products={choice === "products" ? products : manufacturers}
+        query={query}
         onSearch={setQuery}
         categories={categories}
         category={category}
+        sortBy={sortBy}
         onCategoryChange={(c: any) => {
           setCategory(c);
           setPage(1);

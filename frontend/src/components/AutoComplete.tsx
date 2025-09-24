@@ -5,16 +5,18 @@ import type { Manufacturer } from "../../shared/types";
 
 interface SearchBoxProps {
   products: Product[] | Manufacturer[];
-  onSearch: (value: string) => void;
+  onChangeValue: (v: string) => void;
   value: string;
   choice?: string;
+  onSubmit?: () => void;
 }
 
 const AutoCompleteSearchBox = ({
   products,
-  onSearch,
+  onChangeValue,
   value,
   choice,
+  onSubmit,
 }: SearchBoxProps) => {
   return (
     <Autocomplete
@@ -25,11 +27,17 @@ const AutoCompleteSearchBox = ({
       popupIcon={null}
       options={products.map((product): string => product.name)}
       sx={{ width: 300 }}
-      onInputChange={(_, v) => onSearch(v)}
+      onInputChange={(_, v) => onChangeValue(v)}
       disabled={!choice}
       renderInput={(params) => (
         <TextField
           {...params}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              onSubmit?.();
+            }
+          }}
           placeholder={
             choice
               ? choice === "products"

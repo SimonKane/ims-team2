@@ -3,7 +3,6 @@ import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
 import { validationResult } from "express-validator";
 import { ApolloServer } from "@apollo/server";
-
 import { typeDefs } from "./gql/typeDefs.js";
 import { resolvers } from "./gql/resolvers.js";
 import { expressMiddleware } from "@as-integrations/express5";

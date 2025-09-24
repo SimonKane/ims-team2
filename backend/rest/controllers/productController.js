@@ -11,12 +11,13 @@ export async function getAllProducts(req, res) {
   try {
     const { limit, search } = req.query;
 
-    const filter = {};
+    const matchStage = {};
     if (search) {
-      filter.search = { name: { $regex: regExSearch(search), $options: "i" } };
+      matchStage.name = { $regex: regExSearch(search), $options: "i" };
     }
 
     const pipeline = [
+      ...(Object.keys(matchStage).length ? [{ $match: matchStage }] : []),
       {
         $lookup: {
           from: "manufacturers",
@@ -36,7 +37,7 @@ export async function getAllProducts(req, res) {
       },
       { $set: { "manufacturer.contact": { $first: "$contact" } } },
       { $unset: "contact" },
-      { $sort: { "manufacturer.name": 1 } },
+      { $sort: { name: 1 } },
     ];
     const docs = await Product.aggregate(pipeline);
 
@@ -51,7 +52,7 @@ export async function getProductById(req, res) {
 
   try {
     if (!mongoose.isValidObjectId(manufacturerId)) {
-      return res.status(400).json({ error: "Invalid product ID" });
+      return res.status(400).json({ error: "Invalid manufacturer ID" });
     }
 
     const product = await Product.findById(id);
@@ -154,7 +155,7 @@ export async function getCriticalStock(_req, res) {
     })
       .populate({
         path: "manufacturer",
-        select: { name: 1, _id: 0 },
+        select: { name: 1, _id: 1 },
         populate: {
           path: "contact",
           model: "Contact",
@@ -163,7 +164,7 @@ export async function getCriticalStock(_req, res) {
       })
       .select({
         name: 1,
-        _id: 0,
+        _id: 1,
         amountInStock: 1,
       });
     //Kommer alltid returnera status 200 då man får en tom array om inga products finns
