@@ -15,6 +15,18 @@ export async function getAllManufacturers(_req, res) {
   }
 }
 
+export async function getManufacturerById(req, res) {
+  const { id } = req.params;
+  try {
+    const manufacturers = await Manufacturer.findById(id).populate({
+      path: "contact",
+    });
+    res.status(200).json(manufacturers);
+  } catch (error) {
+    res.status(500).json(`Can not get manufacturers. Error: ${error}`);
+  }
+}
+
 export async function getProductsByManufacturer(req, res) {
   try {
     const { id } = req.params;

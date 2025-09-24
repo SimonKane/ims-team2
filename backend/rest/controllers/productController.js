@@ -1,21 +1,19 @@
-import express from "express";
-import { Contact, Manufacturer, Product } from "../../models/models.js";
-
-const app = express();
-app.use(express.json());
+import { Product } from "../../models/models.js";
+import mongoose from "mongoose";
 
 export async function getAllProducts(req, res) {
   const regExSearch = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
   try {
-    const { search } = req.query;
+    const { limit, search } = req.query;
 
-    const filter = {};
+    const matchStage = {};
     if (search) {
-      filter.search = { name: { $regex: regExSearch(search), $options: "i" } };
+      matchStage.name = { $regex: regExSearch(search), $options: "i" };
     }
 
     const pipeline = [
+      ...(Object.keys(matchStage).length ? [{ $match: matchStage }] : []),
       {
         $lookup: {
           from: "manufacturers",
@@ -35,7 +33,7 @@ export async function getAllProducts(req, res) {
       },
       { $set: { "manufacturer.contact": { $first: "$contact" } } },
       { $unset: "contact" },
-      { $sort: { "manufacturer.name": 1 } },
+      { $sort: { name: 1 } },
     ];
     const docs = await Product.aggregate(pipeline);
 
@@ -55,33 +53,32 @@ export async function getProductById(req, res) {
   }
 }
 
-//TODO Ändra så man endast gör en produkt och lägger in manufacturerId
-
 export async function createProduct(req, res) {
-  const { contactInput, manufacturerInput, productInput } = req.body;
-  const existingManufacturer = await Manufacturer.find({
-    name: manufacturerInput.name,
-  });
+  try {
+    const { productInput, manufacturerId } = req.body;
 
-  if (existingManufacturer.length > 0) {
-    try {
-      productInput.manufacturer = existingManufacturer._id;
-      const product = await Product.create(productInput);
-      return res.status(201).json(product);
-    } catch (error) {
-      res.status(500).json(`Could not create product. Error: ${error}`);
+    if (!productInput || !manufacturerId) {
+      return res
+        .status(400)
+        .json({ error: "Product info and manufacturer ID needed" });
     }
-  } else {
-    try {
-      const contact = await Contact.create(contactInput);
-      manufacturerInput.contact = contact._id;
-      const manufacturer = await Manufacturer.create(manufacturerInput);
-      productInput.manufacturer = manufacturer._id;
-      const product = await Product.create(productInput);
-      return res.status(201).json(product);
-    } catch (error) {
-      res.status(500).json(`Could not create product. Error: ${error}`);
+
+    if (!mongoose.isValidObjectId(manufacturerId)) {
+      return res.status(400).json({ error: "Invalid manufacturer ID" });
     }
+    const createdProduct = await Product.create({
+      ...productInput,
+      manufacturer: manufacturerId,
+    });
+    res.status(201).json({
+      message: "Product created",
+      product: createdProduct,
+    });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({ error: "Product already exists" });
+    }
+    res.status(500).json({ message: "Internal server error", error: error });
   }
 }
 
@@ -126,7 +123,7 @@ export async function getCriticalStock(_req, res) {
     })
       .populate({
         path: "manufacturer",
-        select: { name: 1, _id: 0 },
+        select: { name: 1, _id: 1 },
         populate: {
           path: "contact",
           model: "Contact",
@@ -135,7 +132,7 @@ export async function getCriticalStock(_req, res) {
       })
       .select({
         name: 1,
-        _id: 0,
+        _id: 1,
         amountInStock: 1,
       });
 
