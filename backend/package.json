@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev:rest": "nodemon server-rest.js",
-    "dev:gql": "nodemon server-graphql.js"
+    "dev:gql": "nodemon server-graphql.js",
+    "seed": "node seed/seed.js"
   },
   "repository": {
     "type": "git",
@@ -22,6 +23,7 @@
   "dependencies": {
     "@apollo/server": "^5.0.0",
     "@as-integrations/express5": "^1.1.2",
+    "@faker-js/faker": "^10.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
