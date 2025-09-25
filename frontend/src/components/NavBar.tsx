@@ -7,6 +7,7 @@ import {
   BsExclamationTriangle,
   BsSortUp,
   BsPlusSquare,
+  BsArrowLeftSquare,
 } from "react-icons/bs";
 import { useState } from "react";
 import type { Product } from "../../shared/types.ts";
@@ -96,13 +97,31 @@ const NavBar = ({
         </div>
       )}
       <div
-        className="w-[80vw] h-[10vh] bg-[#504136] rounded-t-xl mb-3 shadow-lg flex items-center justify-end px-6"
+        className="relative w-[80vw] h-[10vh] bg-[#504136] rounded-t-xl mb-3 shadow-lg flex items-center justify-end px-6"
         onClick={() => {
           setFilterOpen(false);
           setSortOpen(false);
           setCriticalOpen(false);
         }}
       >
+        {choice && (
+          <button
+            onClick={() => {
+              setAddModal(false);
+              setSortOpen(false);
+              setFilterOpen(false);
+              setCriticalOpen(false);
+              window.location.reload();
+            }}
+            title="Go Back"
+            type="button"
+            aria-label="Go Back"
+            className="absolute left-10 p-2 rounded-md bg-white/20 hover:bg-white/30 transition text-white cursor-pointer"
+          >
+            <BsArrowLeftSquare size={18} />
+          </button>
+        )}
+
         <div
           className="relative item-container flex items-center gap-2 mr-4"
           onClick={(e) => e.stopPropagation()}
@@ -251,7 +270,7 @@ const NavBar = ({
                       size={16}
                     />
                     <p className="font-semibold leading-tight">
-                      Critical low stock, press to contact manufacturer
+                      Critical low stock, contact manufacturer:
                     </p>
                   </div>
 
